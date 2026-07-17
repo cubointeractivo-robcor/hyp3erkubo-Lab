@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYP3RKUBO LAB</title>
+    <style>
+        :root {
+            --bg-color: #0a0510; 
+            --panel-bg: #140b1f; 
+            --text-main: #e0e0e0;
+            --accent-purple: #9d00ff; 
+            --accent-purple-hover: #b84dff;
+            --accent-cyan: #00ffcc; 
+            --danger: #ff0055;
+            --border: #3a1c5e;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 15px; }
+        h1, h2, h3 { color: var(--accent-cyan); margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.25rem; }
+        
+        .panel { 
+            background: var(--panel-bg); 
+            padding: 15px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 4px 15px rgba(157, 0, 255, 0.15); 
+            margin-bottom: 15px; 
+            position: relative; 
+        }
+        
+        /* Ajuste de inputs y placeholders para mejor estética y menor tamaño */
+        label { display: block; margin-top: 6px; font-size: 0.75rem; color: #b3a0cc; }
+        input, select { 
+            width: 100%; 
+            padding: 6px 10px; 
+            margin-top: 2px; 
+            background: #0d0714; 
+            border: 1px solid var(--border); 
+            color: #fff; 
+            border-radius: 4px; 
+            font-size: 0.85rem; 
+        }
+        input:focus { border-color: var(--accent-cyan); outline: none; box-shadow: 0 0 5px rgba(0,255,204,0.3); }
+        
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 10px; 
+            background: var(--accent-purple); 
+            color: #fff; 
+            border: none; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: 0.2s; 
+            font-size: 0.85rem; 
+            letter-spacing: 0.5px; 
+        }
+        button:hover { background: var(--accent-purple-hover); }
+        
+        .btn-secondary { background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-secondary:hover { background: rgba(0, 255, 204, 0.1); }
+        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-danger:hover { background: rgba(255,0,85,0.1); }
+        .btn-icon { width: auto; padding: 4px 8px; margin: 0 1px; background: transparent; border: 1px solid var(--border); font-size: 0.9rem; border-radius: 4px; color: #fff; cursor: pointer; transition: 0.2s; display: inline-block; }
+        .btn-icon:hover { background: rgba(157, 0, 255, 0.3); border-color: var(--accent-purple); }
+        .btn-icon-danger:hover { background: rgba(255,0,85,0.2); border-color: var(--danger); }
+        
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 550px; font-size: 0.8rem; }
+        th, td { border: 1px solid var(--border); padding: 6px; text-align: left; }
+        th { background: #1a0f2e; color: var(--accent-cyan); }
+        .highlight { color: var(--accent-cyan); font-weight: bold; }
+        
+        .desglose-interno { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 4px; border: 1px solid #333; margin-bottom: 10px; font-size: 0.8rem; }
+        .desglose-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .desglose-row.subtotal { border-top: 1px dashed #555; padding-top: 3px; margin-top: 3px; font-weight: bold; color: #aaa; }
+        .desglose-box { background: rgba(0, 0, 0, 0.3); padding: 10px; border-left: 3px solid var(--accent-purple); margin-top: 6px; font-size: 0.85rem; border-radius: 0 4px 4px 0;}
+        
+        .tabs-container { display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        .tab-btn { width: auto; padding: 8px 14px; margin: 0; background: var(--panel-bg); border: 1px solid var(--border); border-bottom: none; color: #aaa; cursor: pointer; border-radius: 5px 5px 0 0; text-transform: none; font-size: 0.85rem; font-weight: normal; }
+        .tab-btn.active { background: #1a0f2e; color: var(--accent-cyan); border-color: var(--accent-cyan); font-weight: bold; }
+        
+        .app-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .user-controls { display: flex; align-items: center; gap: 10px; }
+        
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 15px; }
+        .login-box { width: 100%; max-width: 320px; text-align: center; }
+
+        .stat-box { background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-purple); padding: 10px; border-radius: 4px; text-align: center; }
+        .stat-box h4 { margin: 0; color: #aaa; font-size: 0.75rem; }
+        .stat-box p { margin: 3px 0 0 0; font-size: 1.2rem; color: var(--accent-cyan); font-weight: bold; }
+
+        @media (max-width: 600px) { .header-container { flex-direction: column; gap: 10px; } .form-grid { grid-template-columns: 1fr; gap: 0; } .action-buttons { grid-template-columns: 1fr; } }
+        @media print { body * { visibility: hidden; } #comprobantePrint, #comprobantePrint * { visibility: visible; } #comprobantePrint { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 20px; font-family: Arial, sans-serif;} #comprobantePrint h2 { color: black; margin-bottom: 5px; } .print-row { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 6px 0;} .print-header { background: #f0f0f0; font-weight: bold; padding: 8px; margin-top: 15px; border-left: 4px solid #333;} .print-cols { display: flex; justify-content: space-between; gap: 15px; } .print-col { flex: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="panel login-box">
+            <h2>HYP3RKUBO LAB</h2>
+            <p style="font-size: 0.75rem; color: #aaa;">Identificación de Usuario</p>
+            <input type="text" id="username" placeholder="Usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="iniciarSesion()">Acceder</button>
+            <p id="loginError" style="color: var(--danger); display: none; font-size: 0.75rem; margin-top: 8px;">Credenciales incorrectas</p>
+        </div>
+    </div>
+
+    <div id="appContenedor" style="display: none;">
+        
+        <div class="header-container">
+            <h1 style="margin: 0; font-size: 1.25rem;">HYP3RKUBO LAB</h1>
+            <div class="user-controls">
+                <span id="userBadge" style="color: var(--accent-cyan); font-weight: bold; font-size: 0.85rem;">Usuario: ---</span>
+                <button class="btn-danger" style="width: auto; padding: 6px 12px; margin: 0; font-size: 0.8rem;" onclick="cerrarSesion()">Salir</button>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <button id="tabCotizadorBtn" class="tab-btn active" onclick="cambiarPestana('cotizador')">Cotizador</button>
+            <button id="tabCostosBtn" class="tab-btn" onclick="cambiarPestana('costos')">Costo de Insumos</button>
+            <button id="tabAdminBtn" class="tab-btn admin-only" onclick="cambiarPestana('admin')">⚙️ Panel de Control</button>
+        </div>
+
+        <div class="app-grid" id="mainGrid">
+            
+            <div class="panel admin-only" id="seccionCostos" style="display:none;">
+                <h3 style="margin-top:0;">Configuración de Costos</h3>
+                <label>Costo del Rollo ($ MXN / Kg)</label>
+                <input type="number" id="costoRollo" value="500.00" min="0.00" step="0.50">
+                
+                <label>Margen de Ganancia (%)</label>
+                <input type="number" id="margenGanancia" value="150" step="1" min="0">
+                
+                <hr style="border-color: var(--border); margin: 15px 0;">
+                
+                <label>Costo Electricidad ($/kWh MXN)</label>
+                <input type="number" id="costoKwh" value="5.00" step="0.01" min="0.00">
+                
+                <label>Consumo Impresora (Watts)</label>
+                <input type="number" id="consumoWatts" value="180" min="0">
+                
+                <label>Amortización / Mantenimiento ($/h)</label>
+                <input type="number" id="costoMantenimiento" value="10.00" step="0.5" min="0.00">
+                
+                <label>Impuesto (IVA %)</label>
+                <input type="number" id="impuesto" value="0" step="1" min="0">
+                
+                <button onclick="cambiarPestana('cotizador')" style="margin-top: 20px;">💾 Guardar y Volver</button>
+            </div>
+
+            <div class="panel" id="seccionCotizador">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="margin:0; font-size:1.1rem;">Cotizador de Proyectos</h2>
+                    <span id="folioActualDisplay" style="color:#666; font-family:monospace; font-size:0.95rem;"></span>
+                </div>
+                
+                <div class="form-grid">
+                    <div>
+                        <h3 style="font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 4px; color: #b3a0cc;">Datos del Cliente</h3>
+                        <label>Atención a / Nombre (ej. Ing. Pérez)</label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. Juan Pérez" maxlength="80">
+                        
+                        <label>Empresa o Negocio (ej. Taller ABC)</label>
+                        <input type="text" id="nombreEmpresa" placeholder="Ej. Corporativo ABC S.A." maxlength="80">
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <div style="flex: 1;"><label>Teléfono ($ / #)</label><input type="text" id="telContacto" placeholder="Ej. 867-000-0000" maxlength="20"></div>
+                            <div style="flex: 1;"><label>RFC (Opción Fisc.)</label><input type="text" id="rfcCliente" placeholder="Ej. XAXX010101000" maxlength="15"></div>
+                        </div>
+                        
+                        <label>Email (ej. correo@dominio.com)</label>
+                        <input type="email" id="emailContacto" placeholder="Ej. contacto@empresa.com" maxlength="80">
+                        
+                        <label>Ubicación (Colonia / Ciudad)</label>
+                        <input type="text" id="ubicacionCliente" placeholder="Ej. Nvo. Laredo, Tamps." maxlength="100">
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 4px; color: #b3a0cc;">Descripción del Proyecto</h3>
+                        <label>Nombre del proyecto o pieza</label>
+                        <input type="text" id="nombreProyecto" placeholder="Ej. Prototipo Cárter" maxlength="100">
+                        
+                        <label>Material de Impresión</label>
+                        <select id="tipoMaterial">
+                            <option value="PLA">PLA / PLA+</option>
+                            <option value="PETG">PETG</option>
+                            <option value="ABS">ABS / ASA</option>
+                            <option value="PA-CF">PA-CF</option>
+                            <option value="TPU">TPU (Flexible)</option>
+                        </select>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <div style="flex: 1;"><label>Peso Tot. (0.0g)</label><input type="number" id="pesoGramos" value="100.0" min="0.1" step="0.5"></div>
+                            <div style="flex: 1;"><label>Piezas (1 a 99)</label><input type="number" id="cantidadPiezas" value="1" min="1" step="1"></div>
+                        </div>
+                        
+                        <label>Tiempo Tot. (0h0m0s)</label>
+                        <input type="text" id="tiempoHoras" value="2h30m0s" placeholder="Ej: 5h45m0s">
+
+                        <h3 style="font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 15px; color: #b3a0cc;">Insumos Extra / Post-Procesado</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <div style="flex: 2;"><label>Descripción (Ej. Imanes, resina, laca)</label><input type="text" id="matExtra1Desc" placeholder="Ej. Kit de imanes 8x3mm" maxlength="120"></div>
+                            <div style="flex: 1;"><label>Costo Tot. ($ 0.00)</label><input type="number" id="matExtra1Costo" value="0.00" min="0.00" step="0.50"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="grid-template-columns: 2fr 1fr; margin-top: 15px;">
+                    <button onclick="calcularCotizacion()" style="margin:0;">Generar Costo</button>
+                    <button class="btn-secondary" onclick="limpiarFormulario()" style="margin:0;">🔄 Limpiar</button>
+                </div>
+
+                <hr style="border-color: var(--border); margin: 15px 0;">
+
+                <h3>Resultados</h3>
+                <div class="results" id="resultadosContenedor" style="margin-bottom: 15px;">Esperando parámetros...</div>
+                
+                <div class="action-buttons">
+                    <button id="btnGuardar" class="btn-secondary" style="display:none; margin:0;" onclick="guardarCotizacion()">💾 Guardar en BD</button>
+                    <button id="btnImprimir" class="btn-secondary" style="display:none; margin:0; grid-column: span 2;" onclick="imprimirComprobante()">📄 Descargar PDF / Recibo</button>
+                </div>
+
+                <div class="admin-only">
+                    <h3 style="margin-top: 25px; font-size: 0.85rem;">Historial de Operaciones</h3>
+                    <div class="table-responsive">
+                        <table id="tablaHistorial">
+                            <thead>
+                                <tr><th>Folio</th><th>Cliente</th><th>Proyecto</th><th>Pzs</th><th>Total</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" id="seccionAdmin" style="display:none;">
+                <h2>⚙️ PANEL DE CONTROL</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="color: var(--accent-purple); border-bottom: 1px solid var(--border); padding-bottom: 5px; font-size: 0.85rem;">Gestión de Usuarios</h3>
+                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
+                            <table id="tablaUsuarios" style="font-size: 0.8rem; width: 100%;">
+                                <thead>
+                                    <tr><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 5px; border: 1px solid var(--border);">
+                            <h4 id="tituloFormUsu" style="margin: 0 0 10px 0; color: var(--accent-cyan); font-size: 0.85rem;">+ Nuevo Usuario</h4>
+                            <input type="text" id="nuevoUsuNombre" placeholder="Usuario" style="padding: 6px;">
+                            <input type="text" id="nuevoUsuPass" placeholder="Contraseña" style="padding: 6px;">
+                            <select id="nuevoUsuRol" style="padding: 6px;">
+                                <option value="empleado">Empleado (Solo Cotizar)</option>
+                                <option value="admin">Administrador (Control Total)</option>
+                            </select>
+                            <div style="display: flex; gap: 5px;">
+                                <button id="btnGuardarUsu" class="btn-secondary" style="padding: 6px; margin-top: 8px; flex: 2; font-size: 0.75rem;" onclick="agregarUsuario()">Crear Usuario</button>
+                                <button id="btnCancelarUsu" class="btn-danger" style="padding: 6px; margin-top: 8px; flex: 1; display: none; font-size: 0.75rem;" onclick="cancelarEdicionUsu()">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: var(--accent-purple); border-bottom: 1px solid var(--border); padding-bottom: 5px; font-size: 0.85rem;">Base de Datos</h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <div class="stat-box" style="flex: 1;">
+                                <h4>Total Cotizaciones</h4>
+                                <p id="statTotalDocs">0</p>
+                            </div>
+                            <div class="stat-box" style="flex: 1;">
+                                <h4>Valor Histórico (MXN)</h4>
+                                <p id="statTotalValor">$0.00</p>
+                            </div>
+                        </div>
+
+                        <button onclick="exportarDatos()" style="margin-top: 0; font-size: 0.8rem; padding: 8px;">📥 Respaldar BD (JSON)</button>
+                        <button class="btn-secondary" style="font-size: 0.8rem; padding: 8px;" onclick="document.getElementById('importarBD').click()">📤 Cargar BD (JSON)</button>
+                        <input type="file" id="importarBD" style="display: none;" accept=".json" onchange="importarDatos(event)">
+
+                        <hr style="border-color: var(--border); margin: 25px 0;">
+                        
+                        <h4 style="color: var(--danger); margin: 0 0 10px 0; font-size: 0.85rem;">Zona de Peligro</h4>
+                        <button class="btn-danger" style="margin-top: 0; font-size: 0.8rem; padding: 8px;" onclick="borrarBaseDatos()">🗑️ Purgar Todo el Historial</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="comprobantePrint" style="display: none;">
+        <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="margin: 0; color: black;">HYP3RKUBO LAB</h1>
+            <p style="margin: 0; font-size: 14px; color: #555;">Servicios de Additive Manufacturing & Prototipado Rápido</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <p style="margin: 2px 0;"><strong>Folio:</strong> <span id="printFolio"></span></p>
+            <p style="margin: 2px 0;"><strong>Fecha:</strong> <span id="printFecha"></span></p>
+        </div>
+        <div class="print-header">Datos del Cliente</div>
+        <div class="print-cols" style="margin-top: 10px;">
+            <div class="print-col">
+                <div class="print-row"><span>Nombre:</span> <span id="printCliente"></span></div>
+                <div class="print-row"><span>Empresa:</span> <span id="printEmpresa"></span></div>
+                <div class="print-row"><span>RFC:</span> <span id="printRFC"></span></div>
+            </div>
+            <div class="print-col">
+                <div class="print-row"><span>Teléfono:</span> <span id="printTelefono"></span></div>
+                <div class="print-row"><span>Email:</span> <span id="printEmail"></span></div>
+                <div class="print-row"><span>Ubicación:</span> <span id="printUbicacion"></span></div>
+            </div>
+        </div>
+        <div class="print-header" style="margin-top: 30px;">Detalles del Proyecto</div>
+        <div class="print-row"><span>Descripción:</span> <strong id="printProyecto"></strong></div>
+        <div class="print-row"><span>Material Imprimible:</span> <span id="printMaterial"></span></div>
+        <div class="print-row"><span>Piezas:</span> <span id="printPiezas"></span></div>
+        <div class="print-row"><span>Tiempo Estimado:</span> <span id="printTiempo"></span></div>
+        <div class="print-row" id="rowInsumos" style="display:none;"><span>Insumos Extra:</span> <span id="printMatExtra"></span></div>
+        
+        <div class="print-header" style="margin-top: 30px;">Resumen</div>
+        <div class="print-row"><span>Subtotal:</span> $<span id="printSubtotal"></span> MXN</div>
+        <div class="print-row"><span>Impuestos:</span> $<span id="printImpuesto"></span> MXN</div>
+        <h2 style="text-align: right; margin-top: 20px; font-size: 24px; color: black;">TOTAL: $<span id="printTotal"></span> MXN</h2>
+        <p style="text-align: center; font-size: 11px; margin-top: 50px; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
+            Cotización válida por 15 días. Las variaciones en el diseño final pueden afectar el costo de producción.
+        </p>
+    </div>
+
+    <script>
+        function sanitizarTexto(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, function(match) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[match];
+            });
+        }
+
+        let usuariosObj;
+        try { usuariosObj = JSON.parse(localStorage.getItem('hk_users_v3')); } catch(e) {}
+        
+        if (!usuariosObj) {
+            usuariosObj = {
+                "admin": { pass: "MazterRoot66", rol: "admin" },
+                "empleado": { pass: "taller3d", rol: "empleado" }
+            };
+            localStorage.setItem('hk_users_v3', JSON.stringify(usuariosObj));
+        }
+
+        let usuarioActual = null;
+        let editUsuarioId = null;
+
+        function iniciarSesion() {
+            const user = document.getElementById('username').value.trim().toLowerCase();
+            const pass = document.getElementById('password').value.trim();
+
+            if (usuariosObj[user] && usuariosObj[user].pass === pass) {
+                usuarioActual = usuariosObj[user];
+                usuarioActual.username = user; 
+                
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContenedor').style.display = 'block';
+                document.getElementById('userBadge').innerText = `Usuario: ${user.toUpperCase()}`;
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('password').value = ''; 
+                
+                aplicarPermisos();
+                cargarHistorial();
+                actualizarFolioUI();
+                
+                cambiarPestana('cotizador');
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function cerrarSesion() {
+            usuarioActual = null;
+            limpiarFormulario();
+            document.getElementById('appContenedor').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function cambiarPestana(tipo) {
+            const tabCot = document.getElementById('tabCotizadorBtn');
+            const tabCos = document.getElementById('tabCostosBtn');
+            const tabAdm = document.getElementById('tabAdminBtn');
+
+            const secCot = document.getElementById('seccionCotizador');
+            const secCos = document.getElementById('seccionCostos');
+            const secAdm = document.getElementById('seccionAdmin');
+
+            tabCot.classList.remove('active');
+            tabCos.classList.remove('active');
+            tabAdm.classList.remove('active');
+
+            if (tipo === 'cotizador') {
+                tabCot.classList.add('active');
+                secCot.style.display = 'block';
+                secCos.style.display = 'none';
+                secAdm.style.display = 'none';
+            } else if (tipo === 'costos') {
+                tabCos.classList.add('active');
+                secCot.style.display = 'none';
+                secCos.style.display = 'block';
+                secAdm.style.display = 'none';
+            } else {
+                tabAdm.classList.add('active');
+                secCot.style.display = 'none';
+                secCos.style.display = 'none';
+                secAdm.style.display = 'block';
+                renderizarTablaUsuarios();
+                calcularEstadisticasBD();
+            }
+        }
+
+        function aplicarPermisos() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            if (usuarioActual.rol === 'empleado') {
+                adminElements.forEach(el => el.style.display = 'none');
+                document.getElementById('mainGrid').classList.add('empleado-grid'); 
+                document.getElementById('tabAdminBtn').style.display = 'none';
+            } else {
+                adminElements.forEach(el => el.style.display = 'block');
+                document.getElementById('mainGrid').classList.remove('empleado-grid');
+                document.getElementById('tabAdminBtn').style.display = 'inline-block';
+            }
+        }
+
+        function renderizarTablaUsuarios() {
+            const tbody = document.querySelector('#tablaUsuarios tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            for (let usr in usuariosObj) {
+                const rolFormat = usuariosObj[usr].rol === 'admin' ? '⭐ Admin' : '👤 Empleado';
+                const esPropia = usr === usuarioActual.username;
+                
+                let btnsAccion = `<button class="btn-icon" onclick="editarUsuario('${usr}')" title="Editar">✏️</button>`;
+                if(esPropia) {
+                    btnsAccion += `<span style="color:#aaa; font-size:0.75em; margin-left:8px;">Tú</span>`;
+                } else {
+                    btnsAccion += `<button class="btn-icon btn-icon-danger" onclick="eliminarUsuario('${usr}')" title="Eliminar">🗑️</button>`;
+                }
+                
+                tbody.innerHTML += `<tr><td>${usr}</td><td>${rolFormat}</td><td>${btnsAccion}</td></tr>`;
+            }
+        }
+
+        function editarUsuario(usr) {
+            document.getElementById('nuevoUsuNombre').value = usr;
+            document.getElementById('nuevoUsuPass').value = usuariosObj[usr].pass;
+            document.getElementById('nuevoUsuRol').value = usuariosObj[usr].rol;
+            
+            editUsuarioId = usr;
+            document.getElementById('tituloFormUsu').innerText = "✏️ Editando Usuario";
+            document.getElementById('tituloFormUsu').style.color = "var(--accent-purple)";
+            document.getElementById('btnGuardarUsu').innerText = "Actualizar";
+            document.getElementById('btnCancelarUsu').style.display = "inline-block";
+        }
+
+        function cancelarEdicionUsu() {
+            editUsuarioId = null;
+            document.getElementById('nuevoUsuNombre').value = '';
+            document.getElementById('nuevoUsuPass').value = '';
+            document.getElementById('tituloFormUsu').innerText = "+ Nuevo Usuario";
+            document.getElementById('tituloFormUsu').style.color = "var(--accent-cyan)";
+            document.getElementById('btnGuardarUsu').innerText = "Crear Usuario";
+            document.getElementById('btnCancelarUsu').style.display = "none";
+        }
+
+        function agregarUsuario() {
+            const usr = document.getElementById('nuevoUsuNombre').value.trim().toLowerCase();
+            const pass = document.getElementById('nuevoUsuPass').value.trim();
+            const rol = document.getElementById('nuevoUsuRol').value;
+
+            if (!usr || !pass) { alert("Llena nombre de usuario y contraseña."); return; }
+            
+            if (editUsuarioId) {
+                if (usr !== editUsuarioId && usuariosObj[usr]) { alert("El nuevo nombre ya está en uso."); return; }
+                delete usuariosObj[editUsuarioId];
+                usuariosObj[usr] = { pass: pass, rol: rol };
+                alert("Usuario actualizado correctamente.");
+                cancelarEdicionUsu();
+            } else {
+                if (usuariosObj[usr]) { alert("Este usuario ya existe."); return; }
+                usuariosObj[usr] = { pass: pass, rol: rol };
+                alert(`Usuario ${usr} creado con éxito.`);
+                cancelarEdicionUsu();
+            }
+            
+            localStorage.setItem('hk_users_v3', JSON.stringify(usuariosObj));
+            renderizarTablaUsuarios();
+        }
+
+        function eliminarUsuario(usr) {
+            if(confirm(`¿Estás seguro de ELIMINAR al usuario "${usr}"?`)) {
+                delete usuariosObj[usr];
+                localStorage.setItem('hk_users_v3', JSON.stringify(usuariosObj));
+                renderizarTablaUsuarios();
+            }
+        }
+
+        function calcularEstadisticasBD() {
+            let h = JSON.parse(localStorage.getItem('bd_cotizaciones_v6')) || [];
+            document.getElementById('statTotalDocs').innerText = h.length;
+            let totalAcumulado = h.reduce((sum, item) => sum + item.total, 0);
+            document.getElementById('statTotalValor').innerText = `$${totalAcumulado.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+        }
+
+        function borrarBaseDatos() {
+            const confirmacion = prompt("ATENCIÓN: Vas a borrar TODO el historial. Escribe la palabra: BORRAR");
+            if (confirmacion === "BORRAR") {
+                localStorage.removeItem('bd_cotizaciones_v6');
+                cargarHistorial();
+                calcularEstadisticasBD();
+                alert("Historial purgado.");
+            }
+        }
+
+        let cotizacionEditandoFolio = null; 
+        let cotizacionActual = null;
+
+        function generarFolio() {
+            const now = new Date();
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `HK-${now.getFullYear().toString().slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        }
+
+        function actualizarFolioUI() { 
+            if(cotizacionEditandoFolio) {
+                document.getElementById('folioActualDisplay').innerText = `Editando: ${cotizacionEditandoFolio}`;
+                document.getElementById('folioActualDisplay').style.color = "var(--accent-purple)";
+            } else {
+                document.getElementById('folioActualDisplay').innerText = "Nuevo: " + generarFolio();
+                document.getElementById('folioActualDisplay').style.color = "#666";
+            }
+        }
+
+        function procesarTiempoTexto(tiempoStr) {
+            let str = sanitizarTexto(tiempoStr).toLowerCase().replace(/\s/g, '');
+            let h = str.match(/(\d+)h/)?.[1] || 0;
+            let m = str.match(/(\d+)m/)?.[1] || 0;
+            let s = str.match(/(\d+)s/)?.[1] || 0;
+            return parseInt(h) + (parseInt(m) / 60) + (parseInt(s) / 3600);
+        }
+
+        function limpiarFormulario() {
+            document.querySelectorAll('.form-grid input:not([type="password"])').forEach(i => i.value = '');
+            document.getElementById('costoRollo').value = '500.00';
+            document.getElementById('margenGanancia').value = '150';
+            document.getElementById('costoKwh').value = '5.00';
+            document.getElementById('consumoWatts').value = '180';
+            document.getElementById('costoMantenimiento').value = '10.00';
+            document.getElementById('impuesto').value = '0';
+            
+            document.getElementById('pesoGramos').value = '100.0';
+            document.getElementById('cantidadPiezas').value = '1';
+            document.getElementById('tiempoHoras').value = '2h30m0s';
+            document.getElementById('matExtra1Costo').value = '0.00';
+            document.getElementById('resultadosContenedor').innerHTML = 'Esperando parámetros...';
+            document.getElementById('btnGuardar').style.display = 'none';
+            document.getElementById('btnImprimir').style.display = 'none';
+            
+            cotizacionActual = null;
+            cotizacionEditandoFolio = null; 
+            actualizarFolioUI();
+        }
+
+        function editarCotizacion(folio) {
+            let h = JSON.parse(localStorage.getItem('bd_cotizaciones_v6')) || [];
+            let cot = h.find(c => c.folio === folio);
+            if(!cot) return;
+
+            document.getElementById('nombreCliente').value = cot.cliente === 'Público en General' ? '' : cot.cliente;
+            document.getElementById('nombreEmpresa').value = cot.empresa === 'N/A' ? '' : (cot.empresa || '');
+            document.getElementById('telContacto').value = cot.telefono === 'N/A' ? '' : (cot.telefono || '');
+            document.getElementById('rfcCliente').value = cot.rfc === 'N/A' ? '' : (cot.rfc || '');
+            document.getElementById('emailContacto').value = cot.email === 'N/A' ? '' : (cot.email || '');
+            document.getElementById('ubicacionCliente').value = cot.ubicacion === 'N/A' ? '' : (cot.ubicacion || '');
+            
+            document.getElementById('nombreProyecto').value = cot.proyecto === 'Proyecto 3D' ? '' : (cot.proyecto || '');
+            document.getElementById('tipoMaterial').value = cot.material || 'PLA';
+            document.getElementById('pesoGramos').value = cot.gramos || 100.0;
+            document.getElementById('cantidadPiezas').value = cot.piezas || 1;
+            document.getElementById('tiempoHoras').value = cot.tiempoTexto || '';
+            
+            document.getElementById('matExtra1Desc').value = cot.extra1Desc || '';
+            document.getElementById('matExtra1Costo').value = cot.extra1Costo || 0;
+
+            if (cot.confCostoKilo !== undefined) document.getElementById('costoRollo').value = cot.confCostoKilo;
+            if (cot.confMargen !== undefined) document.getElementById('margenGanancia').value = cot.confMargen;
+            if (cot.confKwh !== undefined) document.getElementById('costoKwh').value = cot.confKwh;
+            if (cot.confWatts !== undefined) document.getElementById('consumoWatts').value = cot.confWatts;
+            if (cot.confMantHora !== undefined) document.getElementById('costoMantenimiento').value = cot.confMantHora;
+            if (cot.confImpuesto !== undefined) document.getElementById('impuesto').value = cot.confImpuesto;
+
+            cotizacionEditandoFolio = folio;
+            actualizarFolioUI();
+            
+            cambiarPestana('cotizador');
+            document.getElementById('resultadosContenedor').innerHTML = `<p style="color:var(--accent-purple);">Datos cargados de ${folio}. La configuración ha sido ajustada a los valores históricos de este ticket.</p>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function eliminarCotizacion(folio) {
+            if(confirm(`¿ELIMINAR definitivamente la cotización ${folio}?`)) {
+                let h = JSON.parse(localStorage.getItem('bd_cotizaciones_v6')) || [];
+                h = h.filter(c => c.folio !== folio); 
+                localStorage.setItem('bd_cotizaciones_v6', JSON.stringify(h));
+                cargarHistorial();
+            }
+        }
+
+        function calcularCotizacion() {
+            const kwh = Math.max(0, parseFloat(document.getElementById('costoKwh').value) || 0);
+            const watts = Math.max(0, parseFloat(document.getElementById('consumoWatts').value) || 0);
+            const mantHora = Math.max(0, parseFloat(document.getElementById('costoMantenimiento').value) || 0);
+            const ivaPorcentajeVisual = Math.max(0, parseFloat(document.getElementById('impuesto').value) || 0);
+            const ivaPorcentaje = ivaPorcentajeVisual / 100;
+            const costoKilo = Math.max(0, parseFloat(document.getElementById('costoRollo').value) || 500);
+            const margenVisual = Math.max(0, parseFloat(document.getElementById('margenGanancia').value) || 150);
+            const margen = margenVisual / 100;
+
+            const cliente = sanitizarTexto(document.getElementById('nombreCliente').value) || 'Público en General';
+            const empresa = sanitizarTexto(document.getElementById('nombreEmpresa').value);
+            const proyecto = sanitizarTexto(document.getElementById('nombreProyecto').value) || 'Proyecto 3D';
+            const material = sanitizarTexto(document.getElementById('tipoMaterial').value);
+            const gramosTotales = Math.max(0.1, parseFloat(document.getElementById('pesoGramos').value) || 0);
+            const cantidadPiezas = Math.max(1, parseInt(document.getElementById('cantidadPiezas').value) || 1);
+            const tiempoRaw = sanitizarTexto(document.getElementById('tiempoHoras').value);
+            const horasDecimales = procesarTiempoTexto(tiempoRaw);
+            
+            const extra1Desc = document.getElementById('matExtra1Desc').value.trim();
+            const extra1Costo = Math.max(0, parseFloat(document.getElementById('matExtra1Costo').value) || 0);
+            const totalInsumosExtra = extra1Costo;
+
+            if (horasDecimales === 0) { alert("Formato de tiempo no válido."); return; }
+
+            const costoMaterialImpresion = (costoKilo / 1000) * gramosTotales;
+            const costoEnergia = ((watts * horasDecimales) / 1000) * kwh;
+            const costoDesgaste = mantHora * horasDecimales;
+
+            const costoProduccionBase = costoMaterialImpresion + costoEnergia + costoDesgaste + totalInsumosExtra;
+            const gananciaTotal = costoProduccionBase * margen;
+            const subtotal = costoProduccionBase + gananciaTotal;
+            const impuestoMonto = subtotal * ivaPorcentaje;
+            const precioVentaTotal = subtotal + impuestoMonto;
+
+            let textoExtras = [];
+            if (extra1Desc && extra1Costo > 0) textoExtras.push(sanitizarTexto(extra1Desc));
+            const stringExtras = textoExtras.length > 0 ? textoExtras.join(" + ") : "N/A";
+
+            const folioUso = cotizacionEditandoFolio ? cotizacionEditandoFolio : generarFolio();
+
+            cotizacionActual = {
+                folio: folioUso, fecha: new Date().toLocaleDateString(), 
+                cliente, empresa, 
+                rfc: sanitizarTexto(document.getElementById('rfcCliente').value),
+                telefono: sanitizarTexto(document.getElementById('telContacto').value),
+                email: sanitizarTexto(document.getElementById('emailContacto').value),
+                ubicacion: sanitizarTexto(document.getElementById('ubicacionCliente').value),
+                proyecto, material, gramos: gramosTotales, piezas: cantidadPiezas,
+                tiempoTexto: tiempoRaw, 
+                extra1Desc: extra1Desc, extra1Costo: extra1Costo, 
+                extrasTexto: stringExtras, total: precioVentaTotal, 
+                subtotal: subtotal, impuesto: impuestoMonto, costoProduccion: costoProduccionBase,
+                confCostoKilo: costoKilo,
+                confMargen: margenVisual,
+                confKwh: kwh,
+                confWatts: watts,
+                confMantHora: mantHora,
+                confImpuesto: ivaPorcentajeVisual
+            };
+
+            let resHTML = `<p style="color:var(--accent-cyan); font-family:monospace; margin-bottom:10px;">FOLIO: ${folioUso}</p>`;
+            
+            if (usuarioActual.rol === 'admin') {
+                resHTML += `
+                    <div class="desglose-interno">
+                        <h4 style="color:var(--accent-purple); margin-top:0; border-bottom:1px solid var(--border); padding-bottom:5px;">📋 Desglose Técnico de Producción</h4>
+                        <div class="desglose-row"><span>Filamento (${gramosTotales.toFixed(1)}g):</span> <span>$${costoMaterialImpresion.toFixed(2)}</span></div>
+                        <div class="desglose-row"><span>Luz Eléctrica:</span> <span>$${costoEnergia.toFixed(2)}</span></div>
+                        <div class="desglose-row"><span>Desgaste Máquina:</span> <span>$${costoDesgaste.toFixed(2)}</span></div>
+                        <div class="desglose-row"><span>Insumos Extra:</span> <span>$${totalInsumosExtra.toFixed(2)}</span></div>
+                        <div class="desglose-row subtotal"><span>COSTO REAL (Piso):</span> <span>$${costoProduccionBase.toFixed(2)}</span></div>
+                    </div>
+                    
+                    <div class="desglose-box">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#ccc;">
+                            <span>Costo Base Unitario:</span> 
+                            <span>$${(costoProduccionBase/cantidadPiezas).toFixed(2)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#b84dff;">
+                            <span>+ Ganancia Sugerida (${margenVisual}%):</span> 
+                            <span>$${(gananciaTotal/cantidadPiezas).toFixed(2)}</span>
+                        </div>`;
+                
+                if (ivaPorcentajeVisual > 0) {
+                    resHTML += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#888;">
+                            <span>+ Impuesto (IVA ${ivaPorcentajeVisual}%):</span> 
+                            <span>$${(impuestoMonto/cantidadPiezas).toFixed(2)}</span>
+                        </div>`;
+                }
+
+                resHTML += `
+                        <div style="display:flex; justify-content:space-between; color:var(--accent-cyan); font-weight:bold; border-top: 1px dashed #555; padding-top: 5px; margin-top: 5px;">
+                            <span>Sug. Venta por Pieza:</span> 
+                            <span>$${(precioVentaTotal/cantidadPiezas).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="highlight" style="margin-top:15px; font-size:1.2em; text-align:right;">TOTAL LOTE: $${precioVentaTotal.toFixed(2)} MXN</p>
+                `;
+            } else {
+                resHTML += `<p class="highlight" style="margin-top:15px; font-size:1.2em; text-align:center;">A COBRAR: $${precioVentaTotal.toFixed(2)} MXN</p>`;
+            }
+
+            document.getElementById('resultadosContenedor').innerHTML = resHTML;
+            document.getElementById('btnGuardar').innerText = cotizacionEditandoFolio ? "💾 Actualizar en BD" : "💾 Guardar en BD";
+            document.getElementById('btnGuardar').style.display = 'block';
+            document.getElementById('btnImprimir').style.display = 'block';
+
+            document.getElementById('printFolio').textContent = folioUso;
+            document.getElementById('printFecha').textContent = new Date().toLocaleDateString();
+            document.getElementById('printCliente').textContent = cotizacionActual.cliente;
+            document.getElementById('printEmpresa').textContent = cotizacionActual.empresa;
+            document.getElementById('printRFC').textContent = cotizacionActual.rfc;
+            document.getElementById('printTelefono').textContent = cotizacionActual.telefono;
+            document.getElementById('printEmail').textContent = cotizacionActual.email;
+            document.getElementById('printUbicacion').textContent = cotizacionActual.ubicacion;
+            document.getElementById('printProyecto').textContent = cotizacionActual.proyecto;
+            document.getElementById('printMaterial').textContent = cotizacionActual.material;
+            document.getElementById('printPiezas').textContent = cotizacionActual.piezas;
+            document.getElementById('printTiempo').textContent = cotizacionActual.tiempoTexto;
+            if (textoExtras.length > 0) { document.getElementById('rowInsumos').style.display = 'flex'; document.getElementById('printMatExtra').textContent = stringExtras; } 
+            else { document.getElementById('rowInsumos').style.display = 'none'; }
+            document.getElementById('printSubtotal').textContent = cotizacionActual.subtotal.toFixed(2);
+            document.getElementById('printImpuesto').textContent = cotizacionActual.impuesto.toFixed(2);
+            document.getElementById('printTotal').textContent = cotizacionActual.total.toFixed(2);
+        }
+
+        function guardarCotizacion() {
+            if(!cotizacionActual) return;
+            try {
+                let h = JSON.parse(localStorage.getItem('bd_cotizaciones_v6')) || [];
+                
+                if (cotizacionEditandoFolio) {
+                    let idx = h.findIndex(c => c.folio === cotizacionEditandoFolio);
+                    if (idx !== -1) {
+                        cotizacionActual.fecha = h[idx].fecha; 
+                        h[idx] = cotizacionActual;
+                    }
+                    alert("Cotización actualizada en la base de datos.");
+                    cotizacionEditandoFolio = null; 
+                } else {
+                    h.push(cotizacionActual);
+                    alert("Cotización guardada exitosamente.");
+                }
+
+                localStorage.setItem('bd_cotizaciones_v6', JSON.stringify(h));
+                
+                cargarHistorial();
+                actualizarFolioUI(); 
+                document.getElementById('btnGuardar').style.display = 'none'; 
+            } catch (e) { alert("Memoria local llena. Descarga tu respaldo JSON y purga tu historial."); }
+        }
+
+        function cargarHistorial() {
+            if(!usuarioActual || usuarioActual.rol !== 'admin') return;
+            let h = JSON.parse(localStorage.getItem('bd_cotizaciones_v6')) || [];
+            const tbody = document.querySelector('#tablaHistorial tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            h.slice().reverse().slice(0, 15).forEach(i => {
+                const nombreMostrado = i.cliente !== 'Público en General' && i.cliente !== 'N/A' ? i.cliente : (i.empresa || 'Público');
+                
+                const btnEdit = `<button class="btn-icon" onclick="editarCotizacion('${i.folio}')" title="Editar">✏️</button>`;
+                const btnDel = `<button class="btn-icon btn-icon-danger" onclick="eliminarCotizacion('${i.folio}')" title="Eliminar">🗑️</button>`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family:monospace; font-size:0.8em;">${i.folio}</td>
+                        <td>${nombreMostrado}</td>
+                        <td>${i.proyecto}</td>
+                        <td>${i.piezas}</td>
+                        <td class="highlight">$${i.total.toFixed(2)}</td>
+                        <td style="min-width: 90px;">${btnEdit} ${btnDel}</td>
+                    </tr>`;
+            });
+        }
+
+        function exportarDatos() {
+            const dataStr = localStorage.getItem('bd_cotizaciones_v6') || "[]";
+            const blob = new Blob([constStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `BD_HYP3RKUBO_${new Date().toISOString().split('T')[0]}.json`; a.click();
+        }
+
+        function importarDatos(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) { 
+                try { JSON.parse(e.target.result); localStorage.setItem('bd_cotizaciones_v6', e.target.result); cargarHistorial(); if(document.getElementById('seccionAdmin').style.display === 'block') calcularEstadisticasBD(); alert("Base de datos restaurada."); } 
+                catch(err) { alert("Error al cargar el archivo de respaldo."); }
+            };
+            if(event.target.files[0]) reader.readAsText(event.target.files[0]);
+        }
+        
+        function imprimirComprobante() {
+            document.getElementById('comprobantePrint').style.display = 'block';
+            window.print();
+            document.getElementById('comprobantePrint').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
